@@ -77,11 +77,22 @@ static void zstd_free_ctx(ZstdDCtxWithBuffer* ctx) {
 
 static int zstd_resize_outbuf(ZstdDCtxWithBuffer* ctx, size_t newCap, int copy)
 {
-    void* newBuf = copy ? realloc(ctx->out.dst, newCap) : malloc(newCap);
+    void* newBuf;
+
+    if (copy) {
+        newBuf = realloc(ctx->out.dst, newCap);
+    } else {
+        newBuf = malloc(newCap);
+    }
+
 	if (!newBuf) {
 		zstd_debug_printf("[zstd_resize_outbuf] Failed to reallocate to %zu bytes\n", newCap);
 		return 0;
 	}
+
+    if (!copy) {
+        free(ctx->out.dst);
+    }
 
     zstd_debug_printf(
         "[zstd_resize_outbuf] Resized output buffer to %zu (old: %zu, copy: %d)\n",
@@ -182,8 +193,8 @@ func (z *zstd) Close() {
 	defer z.mu.Unlock()
 
 	if z.ctx != nil {
-		z.ctx = nil
 		C.zstd_free_ctx(z.ctx)
+		z.ctx = nil
 	}
 }
 
