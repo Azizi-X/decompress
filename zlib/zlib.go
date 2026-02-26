@@ -92,15 +92,14 @@ static int zlib_resize_outbuf(ZlibDCtxWithBuffer* ctx, size_t newCap, int copy) 
         newBuf = realloc(ctx->outBuf, newCap);
     } else {
         newBuf = malloc(newCap);
+        if (newBuf) {
+            free(ctx->outBuf);
+        }
     }
 
     if (!newBuf) {
         zlib_debug_printf("[zlib_resize_outbuf] Failed to reallocate to %zu bytes\n", newCap);
         return 0;
-    }
-
-    if (!copy) {
-        free(ctx->outBuf);
     }
 
     zlib_debug_printf("[zlib_resize_outbuf] Resized output buffer to %zu (old: %zu, copy: %d)\n",
