@@ -61,6 +61,7 @@ static ZstdDCtxWithBuffer* zstd_create_ctx() {
     ctx->out.dst = malloc(outCap);
     ctx->out.size = outCap;
     ctx->out.pos = 0;
+	ctx->pos = 0;
 	ctx->err = NULL;
 
     zstd_debug_printf("[zstd_create_ctx] Context created with buffer capacity: %zu\n", outCap);
@@ -112,6 +113,7 @@ static void zstd_stream_decompress(ZstdDCtxWithBuffer* ctx,
 	}
 
 	ctx->out.pos = 0;
+	ctx->pos = 0;
 
 	size_t prev_in_pos = 0;
 	size_t prev_out_pos = 0;
